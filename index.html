@@ -348,6 +348,13 @@ const SONGS=[
   {t:"Snowboard Rock",b:"Loyalty Freak Music",len:"1:42",g:"Rock alternativo",real:1,src:"audio/tema-5.mp3",img:"img/foto-6.jpg"},
   {t:"Be a good punk",b:"Monplaisir",len:"4:46",g:"Punk",real:1,src:"audio/tema-6.mp3",img:"img/foto-1.jpg"}
 ];
+// si los archivos están sueltos en la raíz (sin carpetas audio/ e img/), usarlos desde ahí
+const ASSETS_READY=(async()=>{
+  try{const r=await fetch(SONGS[0].src,{method:"HEAD",cache:"no-store"});if(r.ok)return}catch(e){}
+  try{const r=await fetch(SONGS[0].src.split("/").pop(),{method:"HEAD",cache:"no-store"});if(!r.ok)return}catch(e){return}
+  SONGS.forEach(s=>{s.src=s.src.split("/").pop();s.img=s.img.split("/").pop()});
+  if(S.screen==="songs"&&R.songs)R.songs(); if(S.screen==="tour"&&R.tour)R.tour();
+})();
 const CREDIT="Música: HoliznaCC0, Loyalty Freak Music y Monplaisir, con licencia CC0 (dominio público). Fotos: Unsplash, publicadas con licencia CC0.";
 const DIFFS=[
   {n:"Fácil",d:"Notas sueltas y bien separadas. Ideal para agarrarle la mano.",lv:1,sp:1.0},
@@ -608,7 +615,7 @@ function toggleChorus(songIdx,owner){
   if(P.active&&P.owner===owner&&P.song===songIdx){stopChorus();return}
   if(SONGS[songIdx].real)playReal(songIdx,owner); else playChorus(songIdx,owner);
 }
-function coverHTML(s,big){return `<div class="${big?"cover":"row-i"}" style="--a:${s.a}deg">${s.img?`<img src="${s.img}" alt="" onerror="this.remove()">`:""}${big?`<b>${s.t}</b>`:""}</div>`}
+function coverHTML(s,big){return `<div class="${big?"cover":"row-i"}" style="--a:${s.a}deg">${s.img?`<img src="${s.img}" alt="" onerror="if(!this.dataset.f&&this.getAttribute('src').includes('/')){this.dataset.f=1;this.src=this.getAttribute('src').split('/').pop()}else this.remove()">`:""}${big?`<b>${s.t}</b>`:""}</div>`}
 function playerName(){return S.name||"Jugador 1"}
 function p1HTML(){return `<span class="p1"><b>1P</b>${esc(playerName())}</span>`}
 function esc(t){return String(t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c])}
